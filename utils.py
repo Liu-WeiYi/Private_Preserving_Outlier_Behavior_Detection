@@ -52,9 +52,11 @@ def find_median_delta_T(all_time):
     #         t2 = to_second(all_time[t2_idx])
     #         all_delta_T.append(abs(t2-t1))
 
-    # TODO: We should exclude value zero !!!!!
+    """ FIX BUGS: We should exclude value zero !!!!! """
     all_delta_T = [i for i in all_delta_T if i != 0]
-    return median(sorted(all_delta_T))
+    # TODO: DETERMINE WE SHOULD USE MEDIAN OR MEAN!!!
+    # return median(sorted(all_delta_T))
+    return mean(all_delta_T)
 
 def generate_time_group(all_time, deltaT):
     """
@@ -68,24 +70,44 @@ def generate_time_group(all_time, deltaT):
     interval_count = 1
     interval_dict = {}
 
-    for t1_idx in range(len(all_time)-1):
-        t2_idx = t1_idx+1
-
+    """ Alg: Time Grouping """
+    t1_idx = 0
+    last_one_hit = False
+    while t1_idx <= len(all_time)-1:
+        t2_idx = t1_idx + 1
+        if t2_idx >= len(all_time): break
         t1 = all_time[t1_idx]
         t2 = all_time[t2_idx]
 
-        # TODO: Determine deltaT will give different Results!!!!
-        if abs(to_second(t1)-to_second(t2)) <= deltaT or t1_idx == 0:
-            if interval_count not in interval_dict.keys():
-                interval_dict[interval_count] = set()
-            interval_dict[interval_count].add(t1)
-            interval_dict[interval_count].add(t2)
-        else:
-            interval_count += 1
-            if interval_count not in interval_dict.keys():
-                interval_dict[interval_count] = set()
-            interval_dict[interval_count].add(t1)
-            interval_dict[interval_count].add(t2)
+        continueFlag = True
+        group = set()
+        while continueFlag is True:
+            # in case solo time
+            if len(group) == 0:
+                group.add(t1)
+            # if we need to add t2 into the same group
+            if abs(to_second(t1)-to_second(t2)) <= deltaT:
+                group.add(t2)
+                t1_idx += 1
+                if all_time[t1_idx] == all_time[-1]:
+                        last_one_hit = True
+                t2_idx += 1
+                if t2_idx >= len(all_time):
+                    interval_dict[interval_count] = list(group)
+                    interval_count += 1
+                    t1_idx = t2_idx
+                    continueFlag = False
+                else:
+                    t1 = all_time[t1_idx]
+                    t2 = all_time[t2_idx]
+            elif abs(to_second(t1)-to_second(t2)) > deltaT:
+                interval_dict[interval_count] = list(group)
+                interval_count += 1
+                t1_idx = t2_idx
+                continueFlag = False
+    """ FIX BUGS: add last one as we ignore t2 """
+    if last_one_hit is False:
+        interval_dict[interval_count] = [all_time[-1]]
 
     return interval_dict
 
@@ -378,19 +400,20 @@ def merged_graph(name, graph_list):
             back_idx = idx-1
             nodes = merged_graph.nodes()
             for node in nodes:
-                if str(idx) in node: # only care about node in current graph!
+                if "_"+str(idx) in node: # only care about node in current graph!
                     # add edges among same name node
                     same_name_node = node.split('_')[0]
                     back_node = same_name_node+'_'+str(back_idx)
                     if back_node in nodes:
-                        merged_graph.add_edge(node, back_node, weight=0)
+                        if node != back_node:
+                            merged_graph.add_edge(node, back_node, weight=0)
 
         idx += 1
 
 
     return merged_graph
 
-def draw_graph(median_T, current_time, user_idx, graph, save_to_disk=True):
+def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,save_to_disk=True):
     """
     Save graph to disk
 
@@ -398,6 +421,8 @@ def draw_graph(median_T, current_time, user_idx, graph, save_to_disk=True):
     @param current_time: current Time, used for creating folder
     @param user_idx: user's idx, use for indicating current user/instead of using nonsense user name
     @param graph: multilayer graph
+    @param self_define_pos: the pos for each node in the graph is defined by ourselves [True]
+    @param save_to_disk: if we need to save files to disk [True]
     """
     cleaned_graph = nx.Graph(name=graph.name)
 
@@ -428,42 +453,48 @@ def draw_graph(median_T, current_time, user_idx, graph, save_to_disk=True):
                 v=updated_v,
                 weight=w['weight']
             )
-    # define pos for each node
-    pos = nx.spring_layout(cleaned_graph)
-    pos = {}
-    # find out how many node we have and how many layers we have
-    same_name_node = set([node.split('_')[0] for node in cleaned_graph.nodes()])
-    layers = set([node.split('_')[1] for node in cleaned_graph.nodes()])
+    # TODO: DEFINE IF WE NEED DRAW GRAPH BY OURSELVES
+    if self_define_pos is True:
+        # define pos for each node
+        pos = {}
+        # find out how many node we have and how many layers we have
+        same_name_node = set([node.split('_')[0] for node in cleaned_graph.nodes()])
+        layers = set([node.split('_')[1] for node in cleaned_graph.nodes()])
 
+        # each layer has same init Y
+        Y = 0.0
+        for layer in layers:
+            # each node's init X is the same
+            X = 0.0
+            for node in sorted(cleaned_graph.nodes()):
+                if layer == node.split('_')[1]:
+                    pos[node] = (X,Y)
+                    X += 0.2
+            Y += 1
+    else:
+        pos = nx.spring_layout(cleaned_graph)
 
-    # each layer has same init Y
-    Y = 0.0
-    for layer in layers:
-        # each node's init X is the same
-        X = 0.0
-        for node in sorted(cleaned_graph.nodes()):
-            if layer == node.split('_')[1]:
-                pos[node] = (X,Y)
-                X += 0.2
-        Y += 1
 
     plt.figure()
     nx.draw_networkx_nodes(cleaned_graph,pos,node_color='w',node_size=100)
     for edge in cleaned_graph.edges(data=True):
         if edge[2]['weight'] == 0:
-            nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],style='dotted')
-        elif edge[2]['weight'] > 0:
+            nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='r',style='dashed',width=0.5)
+        elif edge[2]['weight'] == 1:
             nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='k')
+        else:
+            nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='b')
 
-    nx.draw_networkx_labels(cleaned_graph,pos)
-    nx.draw_networkx_edge_labels(cleaned_graph,pos,label_pos=0.5)
+    nx.draw_networkx_labels(cleaned_graph,pos,font_size=3)
+    # nx.draw_networkx_edge_labels(cleaned_graph,pos,label_pos=0.5,font_size=1)
 
 
-    if not os.path.exists('%s---sampled_results'%current_time):
-        os.mkdir('%s---sampled_results'%current_time)
+    if save_to_disk is True:
+        if not os.path.exists('%s---sampled_results'%current_time):
+            os.mkdir('%s---sampled_results'%current_time)
 
-    nx.write_gml(graph, "%s---sampled_results/%s--%s.gml"%(current_time, user_idx, median_T))
-    plt.savefig("%s---sampled_results/%s--%s.pdf"%(current_time, user_idx, median_T))
+        nx.write_gml(graph, "%s---sampled_results/%s--%s.gml"%(current_time, user_idx, median_T))
+        plt.savefig("%s---sampled_results/%s--%s.pdf"%(current_time, user_idx, median_T))
 
     plt.clf()
 

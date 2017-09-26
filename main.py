@@ -78,7 +78,7 @@ def analysis_Time(user, per_user_info):
         Reach_time = per_user_info["Reach_Time"]
         # Data_time = per_user_info["Data_Time"]
         # all_time=sorted(Reach_time+Data_time)
-        all_time = sorted(Reach_time)
+        all_time = sorted(list(set(sorted(Reach_time))))
         median_deltaT = find_median_delta_T(all_time)
     except:
         print('Current User has no Reach_Time info or Data_Time info!!')
@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
         # --- 2.5 Draw graph --- #
         # nx.draw_networkx(multi_layer_graph)
-        draw_graph(str(median_T),current_time, str(user_idx), multi_layer_graph, save_to_disk=True)
+        draw_graph(str(median_T),current_time, str(user_idx), multi_layer_graph, self_define_pos=True,save_to_disk=True)
 
 
     print('all down!!!')
