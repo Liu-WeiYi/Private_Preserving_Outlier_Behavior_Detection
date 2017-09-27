@@ -10,11 +10,10 @@ import os
 import json
 import networkx as nx
 import traceback
-
 from datetime import datetime
 
-
 from utils import *
+from Abnormal_Scenario_Generation import *
 
 def extract_time(filenames, TEST_FLAG=True):
     """
@@ -206,7 +205,17 @@ if __name__ == "__main__":
 
         # --- 2.5 Draw graph --- #
         # nx.draw_networkx(multi_layer_graph)
-        draw_graph(str(median_T),current_time, str(user_idx), multi_layer_graph, self_define_pos=True,save_to_disk=False)
+        draw_graph(str(median_T),current_time, str(user_idx), multi_layer_graph, self_define_pos=True,save_to_disk=True)
+
+        """
+        # ================================ #
+        # -- Create Date: 2017.09.27
+        # -- UPDATED: Introduce Abnormality ...
+        # ================================ #
+        """
+        # Abnormal Type 1:
+        # --- Add Different Devices --- #
+
 
 
     print('\nall down!!!')

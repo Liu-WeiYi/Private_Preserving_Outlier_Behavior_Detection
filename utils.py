@@ -434,7 +434,6 @@ def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,s
     @param self_define_pos: the pos for each node in the graph is defined by ourselves [True]
     @param save_to_disk: if we need to save files to disk [True]
     """
-    save_to_disk = False
     cleaned_graph = nx.Graph(name=graph.name)
 
     node_map = {}
@@ -495,9 +494,9 @@ def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,s
             nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='k')
         else:
             nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='b')
-            """ For WorkStation """
-            """ We only Save Abnormal Nodes! """
-            save_to_disk = True
+            # """ For WorkStation """
+            # """ We only Save Abnormal Nodes! """
+            # save_to_disk = True
 
     nx.draw_networkx_labels(cleaned_graph,pos,font_size=3)
     # nx.draw_networkx_edge_labels(cleaned_graph,pos,label_pos=0.5,font_size=1)
