@@ -56,6 +56,12 @@ def find_median_delta_T(all_time):
     all_delta_T = [i for i in all_delta_T if i != 0]
     # TODO: DETERMINE WE SHOULD USE MEDIAN OR MEAN!!!
     # return median(sorted(all_delta_T))
+    """
+    FIX BUGS:
+      If current user has only ONE Log Time all_delta_T = []
+    """
+    if all_delta_T == []:
+        all_delta_T = [0]
     return mean(all_delta_T)
 
 def generate_time_group(all_time, deltaT):
@@ -160,8 +166,9 @@ def extract_user_time(filenames):
                         try:
                             Reach_Time = row[-2]
                             all_user_time_info[user]['Reach_Time'].append(Reach_Time)
-                        except:
-                            pass
+                        except Exception as exc:
+                            print(traceback.format_exc())
+                            print(exc)
                     if 'cookie' in file:
                         # extract Data_Time from cookie.csv
                         if 'Data_Time' not in all_user_time_info[user].keys():
@@ -169,8 +176,9 @@ def extract_user_time(filenames):
                         try:
                             Data_Time = row[1]
                             all_user_time_info[user]['Data_Time'].append(Data_Time)
-                        except:
-                            pass
+                        except Exception as exc:
+                            print(traceback.format_exc())
+                            print(exc)
                 else:
                     break
 
@@ -255,8 +263,9 @@ def extract_user_Devices_info(all_user_id, filenames):
                                     # add related info...
                                     all_user_info[user]['Reach_Time'][Reach_Time][d]['Device_IP'].append(Device_IP)
                                     all_user_info[user]['Reach_Time'][Reach_Time][d]['Keyword'].append(Keyword)
-                        except:
-                            pass
+                        except Exception as exc:
+                            print(traceback.format_exc())
+                            print(exc)
                     # --- 3. extract time from cookie_related .csv file --- #
                     if 'cookie' in file:
                         try:
@@ -274,8 +283,9 @@ def extract_user_Devices_info(all_user_id, filenames):
                                 all_user_info[user]['Data_Time'][Data_Time]['Cookie'].append(Cookie)
                                 all_user_info[user]['Data_Time'][Data_Time]['Cookie_IP'].append(Cookie_IP)
                                 all_user_info[user]['Data_Time'][Data_Time]['title'].append(title)
-                        except:
-                            pass
+                        except Exception as exc:
+                            print(traceback.format_exc())
+                            print(exc)
                 else:
                     break
                 count += 1
@@ -424,6 +434,7 @@ def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,s
     @param self_define_pos: the pos for each node in the graph is defined by ourselves [True]
     @param save_to_disk: if we need to save files to disk [True]
     """
+    save_to_disk = False
     cleaned_graph = nx.Graph(name=graph.name)
 
     node_map = {}
@@ -484,10 +495,12 @@ def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,s
             nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='k')
         else:
             nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='b')
+            """ For WorkStation """
+            """ We only Save Abnormal Nodes! """
+            save_to_disk = True
 
     nx.draw_networkx_labels(cleaned_graph,pos,font_size=3)
     # nx.draw_networkx_edge_labels(cleaned_graph,pos,label_pos=0.5,font_size=1)
-
 
     if save_to_disk is True:
         if not os.path.exists('%s---sampled_results'%current_time):

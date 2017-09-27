@@ -9,6 +9,7 @@ import pickle
 import os
 import json
 import networkx as nx
+import traceback
 
 from datetime import datetime
 
@@ -80,9 +81,11 @@ def analysis_Time(user, per_user_info):
         # all_time=sorted(Reach_time+Data_time)
         all_time = sorted(list(set(sorted(Reach_time))))
         median_deltaT = find_median_delta_T(all_time)
-    except:
-        print('Current User has no Reach_Time info or Data_Time info!!')
-        return {}
+    except Exception as exc:
+        print('Abnormal User ID: %s'%user)
+        # print(sys.exc_info()[0])
+        print(traceback.format_exc())
+        print(exc)
 
     # use median Delta_T to determine Time Interval among dates
     # print('--Current Median_Delta_T = %.2f'%median_deltaT)
@@ -167,13 +170,23 @@ if __name__ == "__main__":
     all_user_info = extract_user_info(all_user_id, filenames, TEST_FLAG)
 
     current_time = str(datetime.now()).split()[0] + '-' + str(datetime.now()).split()[1]
+    # --- Let's FLY!!!! --- #
     for user_idx in range(len(all_user_id)):
+        # --- add Progress Statue --- #
+        percentage = 100*(user_idx+1)/len(all_user_id)
+        # print('\r>> Processing Users............ %.2f %%'%percentage,flush=True)
+        sys.stdout.write('\r>> Processing Users............ %.2f %%'%percentage)
+        sys.stdout.flush()
+        # --- End Progree Statue --- #
         user = all_user_id[user_idx]
 
         per_user_info = all_user_time_info[user]
 
         # --- 2.1 Analysis Reach_time and Data_Time --- #
         median_T, Dates_Interval_Dict = analysis_Time(user, per_user_info)
+        if Dates_Interval_Dict == {} and median_T == []:
+            print('Cannot Parse Current User: %s'%user)
+            continue
 
         # --- 2.2 Extract User Devices Behaviors based on Dates Interval --- #
         current_user_info = all_user_info[user]
@@ -193,7 +206,7 @@ if __name__ == "__main__":
 
         # --- 2.5 Draw graph --- #
         # nx.draw_networkx(multi_layer_graph)
-        draw_graph(str(median_T),current_time, str(user_idx), multi_layer_graph, self_define_pos=True,save_to_disk=True)
+        draw_graph(str(median_T),current_time, str(user_idx), multi_layer_graph, self_define_pos=True,save_to_disk=False)
 
 
-    print('all down!!!')
+    print('\nall down!!!')
