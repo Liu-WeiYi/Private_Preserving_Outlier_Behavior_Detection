@@ -423,13 +423,14 @@ def merged_graph(name, graph_list):
 
     return merged_graph
 
-def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,save_to_disk=True):
+def draw_graph(median_T, current_time, user_idx, user, graph, self_define_pos = True,save_to_disk=True):
     """
     Save graph to disk
 
     @param median_T: current median_T for current user
     @param current_time: current Time, used for creating folder
     @param user_idx: user's idx, use for indicating current user/instead of using nonsense user name
+    @param user: user name
     @param graph: multilayer graph
     @param self_define_pos: the pos for each node in the graph is defined by ourselves [True]
     @param save_to_disk: if we need to save files to disk [True]
@@ -485,8 +486,9 @@ def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,s
         pos = nx.spring_layout(cleaned_graph)
 
 
-    plt.figure()
+    # plt.figure()
     nx.draw_networkx_nodes(cleaned_graph,pos,node_color='w',node_size=100)
+
     for edge in cleaned_graph.edges(data=True):
         if edge[2]['weight'] == 0:
             nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='r',style='dashed',width=0.5)
@@ -494,12 +496,14 @@ def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,s
             nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='k')
         else:
             nx.draw_networkx_edges(cleaned_graph,pos,edgelist=[edge],edge_color='b')
-            # """ For WorkStation """
-            # """ We only Save Abnormal Nodes! """
-            # save_to_disk = True
+            """ For WorkStation """
+            """ We only Save Abnormal Nodes! """
+            save_to_disk = True
 
     nx.draw_networkx_labels(cleaned_graph,pos,font_size=3)
-    # nx.draw_networkx_edge_labels(cleaned_graph,pos,label_pos=0.5,font_size=1)
+
+    if save_to_disk is True:
+        nx.draw_networkx_edge_labels(cleaned_graph,pos,label_pos=0.5,font_size=1)
 
     if save_to_disk is True:
         if not os.path.exists('%s---sampled_results'%current_time):
@@ -507,6 +511,13 @@ def draw_graph(median_T, current_time, user_idx, graph, self_define_pos = True,s
 
         nx.write_gml(graph, "%s---sampled_results/%s--%s.gml"%(current_time, user_idx, median_T))
         plt.savefig("%s---sampled_results/%s--%s.pdf"%(current_time, user_idx, median_T))
+
+        # save user name to disk
+        if not os.path.exists('%s---sampled_results/abnormal_user.txt'%(current_time)):
+            with open('abnormal_user.txt','a+') as f:
+                f.write(user)
+                f.write('\n')
+
 
     plt.clf()
 

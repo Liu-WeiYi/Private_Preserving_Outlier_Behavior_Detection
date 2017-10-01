@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
         # --- 2.5 Draw graph --- #
         # nx.draw_networkx(multi_layer_graph)
-        draw_graph(str(median_T),current_time, str(user_idx), multi_layer_graph, self_define_pos=True,save_to_disk=True)
+        draw_graph(str(median_T),current_time, str(user_idx), user, multi_layer_graph, self_define_pos=True,save_to_disk=True)
 
         """
         # ================================ #
