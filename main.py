@@ -22,11 +22,13 @@ def main(normal_path, abnormal_path):
     abnormal_files = glob.glob(abnormal_path+'/*.gml')
 
     # --------------------- #
-    # Process normal People
+    # Get Community Score
     # --------------------- #
-    for file in abnormal_files[0:2]:
+    for file in abnormal_files:
         print('current file:\t', file)
-        network = nx.read_gml(file)
+        # read network
+        network = nx.read_gml(file) # all layer in one. Easy to parse coms
+        # get score
         score_set, score_com = ASG.Detection_Outliers(network)
 
         # For DEBUG

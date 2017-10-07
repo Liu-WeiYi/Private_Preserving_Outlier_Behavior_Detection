@@ -6,15 +6,6 @@ import networkx as nx
 
 from Algorithms.pylouvain import LouvainCommunities
 
-def add_different_Devices(current_user_time_based_device):
-    """
-    randomly add different devices :)
-
-    @param current_user_time_based_device
-    @return abnormal_embeded current_user_time_based_device
-    """
-    pass
-
 
 def Detection_Outliers(network):
     """

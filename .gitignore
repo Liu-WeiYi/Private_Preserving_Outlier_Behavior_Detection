@@ -101,5 +101,4 @@ ENV/
 .mypy_cache/
 
 # Current project
-Abnormal_Example/.pdf
-Normal_Example/.pdf
+*/*
