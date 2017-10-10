@@ -6,6 +6,9 @@ import networkx as nx
 import glob
 import random
 import copy
+import numpy as np
+import sys
+from sklearn.metrics import roc_auc_score
 
 
 from Algorithms.pylouvain import LouvainCommunities
@@ -95,6 +98,7 @@ def synthetic_nodes(normal_path, synthetic_type):
     Precision  = []
     Recall     = []
     F1         = []
+    AUC        = []
 
     # all files
     networks = []
@@ -102,9 +106,9 @@ def synthetic_nodes(normal_path, synthetic_type):
     networks = [nx.read_gml(file) for file in normal_files]
 
     # Define How Many Times
-    synthetic_times = 100
+    synthetic_times = 1000
     # Define How Many Devices
-    devices_number = 2
+    devices_number = 1
 
     if synthetic_type == "Mix":
         syntheticFlags = [

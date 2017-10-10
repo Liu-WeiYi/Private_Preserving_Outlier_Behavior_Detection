@@ -53,8 +53,8 @@ if __name__ == "__main__":
     normal_path = 'Normal_Example'
     abnormal_path = 'Abnormal_Example'
 
-    # synthetic_type = "Nodes"
+    synthetic_type = "Nodes"
     # synthetic_type = "Edges"
-    synthetic_type = "Mix"
+    # synthetic_type = "Mix"
 
     main(normal_path, abnormal_path, synthetic_type)
