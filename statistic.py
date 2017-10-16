@@ -15,6 +15,32 @@ print('# users:\t', len(users))
 
 choose = sys.argv[1]
 
+if choose == '0':
+    print('devices group...')
+    """ 1. devices information """
+    with open('all_user_info.json') as f:
+        all_user_info = json.load(f)
+
+        devices = set()
+        count = 0
+        for user in all_user_info.keys():
+            count += 1
+            percentage = 100 * count / len(all_user_info.keys())
+            sys.stdout.write('\r>> Processing Users............ %.2f %%'%percentage)
+            sys.stdout.flush()
+
+            info = all_user_info[user]["Reach_Time"]
+            for time in info.keys():
+                current_devices = info[time].keys()
+                for d in current_devices:
+                    devices.add(d)
+    num_devices = len(devices)
+    print('\n# all devices:\t', num_devices)
+    print('# avg devices:\t', num_devices/len(users))
+
+
+
+
 if choose == '1':
     print('time group...')
     """ 1. timegroup information"""
