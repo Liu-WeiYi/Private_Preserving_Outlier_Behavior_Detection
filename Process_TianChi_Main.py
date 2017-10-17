@@ -242,4 +242,9 @@ if __name__ == "__main__":
     print('max_time:  ',max_time)
     print('all_tim:   ',sum_time)
 
+    with open('all_time','w+') as f:
+        for i in construction_times:
+            f.write(str(i))
+            f.write('\n')
+
     print('\nall down!!!')
