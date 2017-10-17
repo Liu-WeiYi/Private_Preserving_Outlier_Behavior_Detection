@@ -20,6 +20,9 @@ for idx in range(1,len(all_time)):
     incrementalT = incremental_time[-1]+time_interval
     incremental_time.append(incrementalT)
 
+# transfer (s) -> (ms)
+incremental_time = [t*1000 for t in incremental_time]
+
 """ save incremental_time to disk as csv file """
 with open('incrementa_time.csv','w+') as f:
     for t in incremental_time:
@@ -34,7 +37,7 @@ plot = sns.pointplot(x=x, y=incremental_time)
 
 # plot.set(xticks=[])
 plt.xlabel('Cumulative Accounts Number')
-plt.ylabel('Cumulative Time (s)')
+plt.ylabel('Cumulative Time (ms)')
 
 plt.savefig('incremental_time.pdf')
 plt.show()
