@@ -12,6 +12,8 @@ import networkx as nx
 import traceback
 from datetime import datetime
 
+import time
+
 from utils import *
 from Abnormal_Scenario_Generation import *
 
@@ -139,9 +141,13 @@ def construct_graph(name, devices_info):
 
     return graph
 
+global IO_Time
+IT_Time = 0
+
 if __name__ == "__main__":
 
     TEST_FLAG = True # Indicate we use WorkStation in Watson
+
 
     try:
         if sys.argv[1] == '-w':
@@ -169,8 +175,15 @@ if __name__ == "__main__":
     all_user_info = extract_user_info(all_user_id, filenames, TEST_FLAG)
 
     current_time = str(datetime.now()).split()[0] + '-' + str(datetime.now()).split()[1]
+
     # --- Let's FLY!!!! --- #
+    # --- UPDATE: 2017-10-16 Log Time --- #
+    construction_times = []
+    # UPDATE END #
+
     for user_idx in range(len(all_user_id)):
+        startTime = time.time()
+
         # --- add Progress Statue --- #
         percentage = 100*(user_idx+1)/len(all_user_id)
         # print('\r>> Processing Users............ %.2f %%'%percentage,flush=True)
@@ -203,6 +216,9 @@ if __name__ == "__main__":
         # --- 2.4 Create Multi-Layer Graph based on graph_list --- #
         multi_layer_graph = merged_graph(user, graph_list)
 
+        TimeInterval = time.time()-startTime
+        construction_times.append(TimeInterval)
+
         # --- 2.5 Draw graph --- #
         # nx.draw_networkx(multi_layer_graph)
         draw_graph(str(median_T),current_time, str(user_idx), user, multi_layer_graph, self_define_pos=True,save_to_disk=True)
@@ -216,6 +232,14 @@ if __name__ == "__main__":
         # Abnormal Type 1:
         # --- Add Different Devices --- #
 
-
+    print('\n')
+    min_time = min(construction_times)
+    max_time = max(construction_times)
+    avg_time = mean(construction_times)
+    sum_time = sum(construction_times)
+    print('min_time:  ',min_time)
+    print('avg_time:  ',avg_time)
+    print('max_time:  ',max_time)
+    print('all_tim:   ',sum_time)
 
     print('\nall down!!!')
