@@ -41,13 +41,13 @@ def main(normal_path, abnormal_path, synthetic_type):
         time_inverval = time.time()-startTime
         analysis_time.append(time_inverval)
 
-        # For DEBUG
+        # # For DEBUG
         # for s in set(score_set):
         #     print('score: ', s)
         #     for com in score_com[s]:
         #         print('\t',com)
         # print('\n')
-        # END DEBUG
+        # # END DEBUG
 
     # --------------------- #
     # Get Evaluation

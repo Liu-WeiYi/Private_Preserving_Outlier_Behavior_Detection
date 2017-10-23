@@ -30,7 +30,7 @@ with open('incrementa_time.csv','w+') as f:
         f.write('\n')
 
 """ Draw Incremental Time """
-sns.set_style("darkgrid")
+sns.set_style("darkgrid", {'font.family':'serif','font.serif':'Times New Roman'})
 
 x = list(range(1, len(incremental_time)+1))
 plot = sns.pointplot(x=x, y=incremental_time)

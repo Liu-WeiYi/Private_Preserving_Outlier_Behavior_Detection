@@ -9,7 +9,8 @@ import copy
 import numpy as np
 import sys
 from sklearn.metrics import roc_auc_score
-
+import time
+from interruptingcow import timeout
 
 from Algorithms.pylouvain import LouvainCommunities
 
@@ -63,7 +64,23 @@ def Detection_Outliers(network):
             modify_weight_network.add_edge(u,v,weight=w/100)
 
     # 1. get community result
-    NodeCommunity, Modularity = LouvainCommunities(modify_weight_network)
+    """
+    Fix Bug: Check Louvain... If stuck, restart to calculate... up to 10 times
+    """
+    start = time.time()
+    restart_time = 10
+    while restart_time > 0:
+        try:
+            with timeout(10, exception=RuntimeError):
+                NodeCommunity, Modularity = LouvainCommunities(modify_weight_network)
+                restart_time = 0
+        except RuntimeError:
+            sys.stdout.write('\r [!!!] Louvain needs reboot...remain %i / 10 times '%restart_time)
+            sys.stdout.flush()
+            restart_time -= 1
+            NodeCommunity = [modify_weight_network.nodes()]
+            Modularity = 0
+
     """FIX BUGS: Louvain Community Algorithm will omit isolated node"""
     ISO_Nodes = nx.isolates(network)
     if len(ISO_Nodes) != 0:
